@@ -46,8 +46,6 @@ public abstract class Delegator implements Control {
 	protected ConcurrentLinkedQueue<DelegatorTask> tileAdd = new ConcurrentLinkedQueue();
 	protected ConcurrentLinkedQueue<DelegatorTask> tileRemove = new ConcurrentLinkedQueue();
 	protected ConcurrentLinkedQueue<DelegatorTask> LODUpdates = new ConcurrentLinkedQueue();
-	//	protected ConcurrentLinkedQueue<DelegatorDirective> directives = new ConcurrentLinkedQueue();
-//	protected Set<Vector3f> keys;
 	
 	// Tile info
 	protected float tileSize;
