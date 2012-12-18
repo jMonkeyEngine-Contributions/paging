@@ -32,6 +32,7 @@ public abstract class ManagedNodeDelegator extends Delegator {
 			if (fTaskCreate == null) {
 				if (!exec.isTerminating() && !exec.isShutdown()) {
 					fTaskCreate = exec.submit(new Callable() {
+						// Check existing nodes and queue add/remove of tiles
 						@Override
 						public Void call() throws Exception {
 							Set<Vector3f> keys = tiles.keySet();
@@ -59,7 +60,7 @@ public abstract class ManagedNodeDelegator extends Delegator {
 		}
 	}
 	
-	protected void delegateAddRemove(float tpf) {
+	private void delegateAddRemove(float tpf) {
 		// Poll managed nodes and remove tile from scene
 		if (!tileRemove.isEmpty()) {
 			DelegatorTask task = tileRemove.poll();
@@ -103,29 +104,43 @@ public abstract class ManagedNodeDelegator extends Delegator {
 		}
 	}
 	
-	protected void delegateTasks(float tpf) {
-		
-	}
-	
-	public synchronized void addManagedNode(ManagedNode node) {
-		System.out.println("Adding node at : " + node.getLocalTranslation());
+	/**
+	 * Public method for adding ManagedNode(s) to the pool of nodes this delegator
+	 * is responsible for
+	 * @param node The ManagedNode to add to the pool
+	 */
+	public void addManagedNode(ManagedNode node) {
 		DelegatorTask task = new DelegatorTask(this, node.getLocalTranslation(), LOD.LOD_1, LOD.LOD_1);
 		task.setNode(node);
 		task.setStage(STAGE.COMPLETE);
 		tiles.put(node.getLocalTranslation(), task);
 	}
-	
+	/**
+	 * Public method for removing and ManagedNode by location from the pool 
+	 * of nodes this delegator is responsible for
+	 * @param location The Vector3f the ManagedNode was registered at
+	 */
 	public void removeManagedNode(Vector3f location) {
 		tiles.remove(location);
 	}
-	
+	/**
+	 * Public method for removing and ManagedNode by instance from the pool 
+	 * of nodes this delegator is responsible for
+	 * @param node The ManagedNode instance to remove
+	 */
 	public void removeManagedNode(ManagedNode node) {
 		tiles.remove(node.getLocalTranslation());
 	}
 	
-	// Dependent delegator methods
+	/**
+	 * Dependent delegator notification.  Standard delegators check for tile 
+	 * addition/creation based on distance from camera.  In the case of dependent
+	 * delegators, normal distance checks are bypassed and onParentNotifyCreate
+	 * is called instead.
+	 * @param task The most recent task created/added by the parent delegator
+	 */
 	@Override
-	public void onParentNotifyCreate(DelegatorTask task) {
+	protected void onParentNotifyCreate(DelegatorTask task) {
 		tileAdd.add(tiles.get(task.getPosition()));
 	}
 }
