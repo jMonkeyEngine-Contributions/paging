@@ -256,7 +256,11 @@ public abstract class Delegator implements Control {
 	public boolean getManageLOD() {
 		return this.manageLOD;
 	}
-	
+	/**
+	 * Adds a level of detail and LODLow or LODHigh if applicable
+	 * @param lod PagingManager.LOD level
+	 * @param distance Start distance for level of detail
+	 */
 	public void addLOD(LOD lod, float distance) {
 		if (!LODDistances.containsKey(lod)) {
 			LODDistances.put(lod, distance);
@@ -266,28 +270,47 @@ public abstract class Delegator implements Control {
 			else if (lod.ordinal() > LODHigh.ordinal()) LODHigh = lod;
 		}
 	}
-	
+	/**
+	 * Removes an existing level of detail
+	 * @param lod PagingManager.LOD
+	 */
 	public void removeLOD(LOD lod) {
 		if (LODDistances.containsKey(lod))
 			LODDistances.remove(lod);
 	}
-	
+	/**
+	 * Returns the float value of the start distance for the specified level of detail
+	 * @param lod PagingManager.LOD
+	 * @return float Level of detail start distance
+	 */
 	public float getLOD(LOD lod) {
 		return LODDistances.get(lod);
 	}
-	
+	/**
+	 * Returns the furthest level of detail handled by the delegator
+	 * @return PagingManager.LOD
+	 */
 	public LOD getLowDetail() {
 		return this.LODLow;
 	}
-	
+	/**
+	 * Returns the closest level of detail handled by the delegator
+	 * @return PagingManager.LOD
+	 */
 	public LOD getHighDetail() {
 		return this.LODHigh;
 	}
-	
+	/**
+	 * Returns the entire hash map of registered levels of detail
+	 * @return ConcurrentHashMap<PagingManager.LOD, Float>
+	 */
 	public ConcurrentHashMap<LOD, Float> getLODs() {
 		return LODDistances;
 	}
-	
+	/**
+	 * Returns the unique string identifier for the delegator
+	 * @return String UID
+	 */
 	public String getUID() {
 		return this.UID;
 	}
