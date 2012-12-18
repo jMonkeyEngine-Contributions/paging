@@ -79,7 +79,7 @@ public abstract class ManagedMeshDelegator extends Delegator {
 		delegatorUpdate(tpf);
 	}
 	
-	protected void checkTile(Vector3f testVec) {
+	private void checkTile(Vector3f testVec) {
 		if (cam.getLocation().distance(testVec) <= maxDistance) {
 			if (!tiles.containsKey(testVec)) {
 				if (tileCache.containsKey(testVec)) {
@@ -99,7 +99,7 @@ public abstract class ManagedMeshDelegator extends Delegator {
 		}
 	}
 	
-	protected void delegateAddRemove(float tpf) {
+	private void delegateAddRemove(float tpf) {
 		// Poll managed nodes and remove tile from scene
 		if (!tileRemove.isEmpty()) {
 			DelegatorTask task = tileRemove.poll();
@@ -119,9 +119,6 @@ public abstract class ManagedMeshDelegator extends Delegator {
 					pm.getPhysicsSpace().remove(task.getPhysicsNode());
 				}
 
-				// Notify dependants
-
-
 				// Notify listeners
 				for (DelegatorListener l : listeners) {
 					l.onRemoveFromScene(task.getNode());
@@ -139,9 +136,6 @@ public abstract class ManagedMeshDelegator extends Delegator {
 			if (pm.getManagePhysics() && managePhysics) {
 				pm.getPhysicsSpace().add(task.getPhysicsNode());
 			}
-			
-			// Notify dependants
-			
 			
 			// Notify listeners
 			for (DelegatorListener l : listeners) {
@@ -225,7 +219,7 @@ public abstract class ManagedMeshDelegator extends Delegator {
 		}
 	}
 	
-	protected void delegateTasks(float tpf) {
+	private void delegateTasks(float tpf) {
 		if (!exec.isTerminating() && !exec.isShutdown()) {
 			Set<Vector3f> keys = tiles.keySet();
 			for (final Vector3f key : keys) {
@@ -309,13 +303,21 @@ public abstract class ManagedMeshDelegator extends Delegator {
 		}
 	}
 	
-	// Dependent delegator methods
+	/**
+	 * Dependent delegator notification.  Standard delegators check for tile 
+	 * addition/creation based on distance from camera.  In the case of dependent
+	 * delegators, normal distance checks are bypassed and onParentNotifyCreate
+	 * is called instead.
+	 * @param task The most recent task created by the parent delegator
+	 */
 	@Override
-	public void onParentNotifyCreate(DelegatorTask task) {
+	protected void onParentNotifyCreate(DelegatorTask task) {
 		if (tileCache.containsKey(task.getPosition())) {
+			// Check cache for stored tile at current position
 			if (!prepopulated) { tiles.put(task.getPosition(), tileCache.get(task.getPosition())); }
 			tileAdd.add(tileCache.get(task.getPosition()));
 		} else {
+			// Create new task
 			DelegatorTask newTask = new DelegatorTask(this, task.getPosition(), this.LODHigh, this.LODLow);
 			newTask.setDependentNode(task.getNode());
 			tiles.put(task.getPosition(), newTask);
