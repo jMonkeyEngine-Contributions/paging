@@ -91,7 +91,7 @@ public abstract class Delegator implements Control {
 	 * Abstracted classes used by ManagedMeshDelegator and ManagedNodeDelegator
 	 * @param task The delegator task (see DelegatorTask.java)
 	 */
-	public abstract void onParentNotifyCreate(DelegatorTask task);
+	protected abstract void onParentNotifyCreate(DelegatorTask task);
 	/**
 	 * Initialization method called by either the paging manager or parent
 	 * delegator when registering the new delegator with the system.  See
