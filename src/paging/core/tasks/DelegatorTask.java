@@ -24,7 +24,8 @@ public class DelegatorTask {
 		BEGIN,
 		CACHED,
 		PHYSICS,
-		COMPLETE
+		COMPLETE,
+		CUSTOM
 	}
 	
 	private Delegator delegator;
@@ -34,10 +35,12 @@ public class DelegatorTask {
 	private ManagedMesh mesh = null;
 	private PhysicsControl physicsNode = null;
 	private Geometry geom = null;
-	private STAGE stage = STAGE.BEGIN;
+	private STAGE stage = STAGE.CUSTOM;
 	private Future future = null;
 	private LOD detailHigh, detailLow;
 	private LOD nextLOD = LOD.LOD_1;
+	private Object customData;
+	
 	/**
 	 * Creates a new DelegatorTask
 	 * @param delegator Pointer to the delegator that created the task
@@ -124,9 +127,9 @@ public class DelegatorTask {
 	 * Creates a RigidBodyControl for the task's ManagedMesh
 	 */
 	public void createPhysicsNode() {
-		mesh.updateLOD(detailHigh);
-		this.physicsNode = new RigidBodyControl(CollisionShapeFactory.createMeshShape(node), 0);
-		mesh.updateLOD(detailLow);
+	//	mesh.updateLOD(detailHigh);
+		this.physicsNode = new RigidBodyControl(CollisionShapeFactory.createMeshShape(geom), 0);
+	//	mesh.updateLOD(detailLow);
 		node.addControl(physicsNode);
 	}
 	/**
@@ -195,5 +198,11 @@ public class DelegatorTask {
 		this.dependentNode = node;
 	}
 	
+	public void setCustomData(Object customData) {
+		this.customData = customData;
+	}
 	
+	public Object getCustomData() {
+		return this.customData;
+	}
 }
