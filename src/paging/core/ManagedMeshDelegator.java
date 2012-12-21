@@ -25,7 +25,7 @@ import paging.core.tasks.DelegatorTask.STAGE;
  */
 public abstract class ManagedMeshDelegator extends Delegator {
 	
-	protected abstract ManagedMesh createMesh(Vector3f position, ManagedNode dependantNode);
+	protected abstract ManagedMesh createMesh(Vector3f position, ManagedNode dependantNode, Object customData);
 	
 	@Override
 	protected void initialize() {
@@ -227,21 +227,26 @@ public abstract class ManagedMeshDelegator extends Delegator {
 				if (task != null) {
 					if (task.getStage() != STAGE.COMPLETE) {
 						switch (task.getStage()) {
+							case CUSTOM:
+								delegatorTaskCustomData(tpf, task);
+								task.setStage(STAGE.BEGIN);
+								break;
 							case BEGIN:
 								if (task.getFuture() == null) {
 									if (this.isDependant) {
 										final ManagedNode node = task.getDependentNode();
+										final Object customData = task.getCustomData();
 										task.setFuture(exec.submit(new Callable() {
 											@Override
 											public ManagedMesh call() throws Exception {
-												return createMesh(key, node);
+												return createMesh(key, node, customData);
 											}
 										}));
 									} else {
 										task.setFuture(exec.submit(new Callable() {
 											@Override
 											public ManagedMesh call() throws Exception {
-												return createMesh(key, null);
+												return createMesh(key, null, null);
 											}
 										}));
 									}
