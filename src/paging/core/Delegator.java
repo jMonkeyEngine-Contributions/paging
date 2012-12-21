@@ -75,6 +75,13 @@ public abstract class Delegator implements Control {
 	protected abstract void initialize();
 	/**
 	 * An abstracted control update loop call for use with classes extending
+	 * either ManagedMeshDelegator or ManagedNodeDelegator.  This method allows
+	 * the user to setup any custom data requiring the main update loop.
+	 * @param tpf Standard JME time/ticks per frame
+	 */
+	public abstract void delegatorTaskCustomData(float tpf, DelegatorTask task);
+	/**
+	 * An abstracted control update loop call for use with classes extending
 	 * either ManagedMeshDelegator or ManagedNodeDelegator
 	 * @param tpf Standard JME time/ticks per frame
 	 */
