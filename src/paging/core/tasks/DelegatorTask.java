@@ -206,4 +206,8 @@ public class DelegatorTask {
 	public Object getCustomData() {
 		return this.customData;
 	}
+	
+	public Delegator getDelegator() {
+		return this.delegator;
+	}
 }
