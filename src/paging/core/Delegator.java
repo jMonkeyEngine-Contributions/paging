@@ -6,6 +6,7 @@ package paging.core;
 
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
+import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
@@ -51,7 +52,10 @@ public abstract class Delegator implements Control {
 	protected float tileSize;
 	protected int tilesPerColumn;
 	protected float maxDistance;
+	protected float fadeStartDistance;
+	protected float totalFadeDistance;
 	protected boolean disableYAxis = true;
+	protected Bucket bucket = Bucket.Opaque;
 	
 	// LOD info
 	protected ConcurrentHashMap<PagingManager.LOD, Float> LODDistances = new ConcurrentHashMap();
@@ -60,6 +64,9 @@ public abstract class Delegator implements Control {
 	
 	// Physics
 	protected boolean managePhysics = false;
+	
+	// Object fading
+	protected boolean manageObjectFading = false;
 	
 	// Futures
 	Future fTaskLOD;
@@ -115,7 +122,6 @@ public abstract class Delegator implements Control {
 		this.cam = cam;
 		this.cacheSize = cacheSize;
 		this.pm = pm;
-		System.out.println(UID + ": " + cacheSize);
 		this.tileCache = new LRUCache(cacheSize);
 		initialize();
 	}
@@ -129,6 +135,8 @@ public abstract class Delegator implements Control {
 		this.tileSize = tileSize;
 		this.tilesPerColumn = tilesPerColumn;
 		this.maxDistance = tileSize*((float)tilesPerColumn/2f);
+		this.fadeStartDistance = this.maxDistance/2f;
+		this.totalFadeDistance = this.maxDistance-this.fadeStartDistance;
 		this.disableYAxis = disableYAxis;
 	}
 	/**
@@ -225,6 +233,13 @@ public abstract class Delegator implements Control {
 		return this.maxDistance;
 	}
 	/**
+	 * Returns the distance object fading begins
+	 * @return float fadeStartDistance
+	 */
+	public float getFadeStartDistance() {
+		return this.fadeStartDistance;
+	}
+	/**
 	 * Returns if the delegator is handling tiles or sectors
 	 * @return boolean disableYAxis
 	 */
@@ -260,6 +275,20 @@ public abstract class Delegator implements Control {
 	 */
 	public boolean getManageLOD() {
 		return this.manageLOD;
+	}
+	/**
+	 * Sets if the delegator should be handling object fading
+	 * @param manageObjectFading
+	 */
+	public void setManageObjectFading(boolean manageObjectFading) {
+		this.manageObjectFading = manageObjectFading;
+	}
+	/**
+	 * Gets if the delegator is handling object fading
+	 * @return boolean manageObjectFading
+	 */
+	public boolean getManageObjectFading() {
+		return this.manageObjectFading;
 	}
 	/**
 	 * Adds a level of detail and LODLow or LODHigh if applicable
@@ -318,5 +347,13 @@ public abstract class Delegator implements Control {
 	 */
 	public String getUID() {
 		return this.UID;
+	}
+	
+	public void setRenderBucket(Bucket bucket) {
+		this.bucket = bucket;
+	}
+	
+	public Bucket getRenderBucket() {
+		return this.bucket;
 	}
 }
