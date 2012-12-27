@@ -1,7 +1,9 @@
 package paging.core;
 
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
+import com.jme3.math.Vector4f;
 import com.jme3.scene.Node;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -44,7 +46,12 @@ public abstract class ManagedMeshDelegator extends Delegator {
 		if (manageLOD) {
 			delegateUpdateLOD(tpf);
 		}
-
+		
+		// Handle object fading
+		if (manageObjectFading) {
+			delegateObjectFading(tpf);
+		}
+		
 		// Call to spatial specific delegator for handling tile creation
 		// ManagedMeshDelegator = create new mesh and add to queue
 		// ManagedNodeDelegator = add existing managed node to queue
@@ -217,6 +224,28 @@ public abstract class ManagedMeshDelegator extends Delegator {
 				fTaskLOD = null;
 			}
 		}
+	}
+	
+	private void delegateObjectFading(float tpf) {
+		/*
+		Set<Vector3f> keys = tiles.keySet();
+		for (Vector3f key : keys) {
+			if (cam.getLocation().distance(key) < maxDistance) {
+				DelegatorTask task = tiles.get(key);
+				if (task.getStage() == STAGE.COMPLETE) {
+					// Handle fading
+					float distance = cam.getLocation().clone().distance(key);
+					if (distance >= fadeStartDistance) {
+						float alphaModifier = 1f-((distance-fadeStartDistance)/totalFadeDistance);
+						System.out.println("Alpha modifier: " + alphaModifier);
+						task.getGeometry().getMaterial().setFloat("AlphaModifier", alphaModifier);
+					} else {
+						task.getGeometry().getMaterial().setFloat("AlphaModifier", 1f);
+					}
+				}
+			}
+		}
+		*/
 	}
 	
 	private void delegateTasks(float tpf) {

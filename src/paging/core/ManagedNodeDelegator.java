@@ -29,6 +29,12 @@ public abstract class ManagedNodeDelegator extends Delegator {
 		// Handle Managed Nodes
 		if (!tiles.isEmpty()) {
 			delegateAddRemove(tpf);
+			
+			// Handle object fading
+			if (manageObjectFading) {
+				delegateObjectFading(tpf);
+			}
+			
 			if (fTaskCreate == null) {
 				if (!exec.isTerminating() && !exec.isShutdown()) {
 					fTaskCreate = exec.submit(new Callable() {
@@ -102,6 +108,10 @@ public abstract class ManagedNodeDelegator extends Delegator {
 				l.onAddToScene(task.getNode());
 			}
 		}
+	}
+	
+	private void delegateObjectFading(float tpf) {
+		
 	}
 	
 	/**
