@@ -37,7 +37,7 @@ public abstract class ManagedMeshDelegator extends Delegator {
 	@Override
 	public void update(float tpf) {
 		// Call to spatial specific delegator for handling tile removal
-		delegateAddRemove(tpf);
+	//	delegateAddRemove(tpf);
 		
 		// Update removal queue
 		delegateUpdateRemove(tpf);
@@ -90,16 +90,18 @@ public abstract class ManagedMeshDelegator extends Delegator {
 		if (cam.getLocation().distance(testVec) <= maxDistance) {
 			if (!tiles.containsKey(testVec)) {
 				if (tileCache.containsKey(testVec)) {
-					if (!prepopulated) { tiles.put(testVec, tileCache.get(testVec)); }
-					tileAdd.add(tileCache.get(testVec));
+					if (!pm.tileAdd.contains(tileCache.get(testVec))) {
+						if (!prepopulated) { tiles.put(testVec, tileCache.get(testVec)); }
+						pm.tileAdd.add(tileCache.get(testVec));
+					}
 				} else {
 					if (!prepopulated)  { tiles.put(testVec, new DelegatorTask(this, testVec, this.LODHigh, this.LODLow)); }
 				}
 			} else {
 				if (prepopulated) {
 					DelegatorTask task = tiles.get(testVec);
-					if (!tileAdd.contains(task)) {
-						tileAdd.add(task);
+					if (!pm.tileAdd.contains(task)) {
+						pm.tileAdd.add(task);
 					}
 				}
 			}
@@ -107,6 +109,7 @@ public abstract class ManagedMeshDelegator extends Delegator {
 	}
 	
 	private void delegateAddRemove(float tpf) {
+		/*
 		// Poll managed nodes and remove tile from scene
 		if (!tileRemove.isEmpty()) {
 			DelegatorTask task = tileRemove.poll();
@@ -149,6 +152,7 @@ public abstract class ManagedMeshDelegator extends Delegator {
 				l.onAddToScene(task.getNode());
 			}
 		}
+		*/
 	}
 	
 	private void delegateUpdateRemove(float tpf) {
@@ -164,8 +168,8 @@ public abstract class ManagedMeshDelegator extends Delegator {
 								DelegatorTask task = tiles.get(key);
 								if (task.getStage() == STAGE.COMPLETE) {
 									// Queue for removal
-									if (!tileRemove.contains(task)) {
-										tileRemove.add(task);
+									if (!pm.tileRemove.contains(task)) {
+										pm.tileRemove.add(task);
 									}
 								}
 							}
@@ -290,8 +294,8 @@ public abstract class ManagedMeshDelegator extends Delegator {
 										} else {
 											task.setStage(STAGE.COMPLETE);
 											task.setFuture(null);
-											if (!tileAdd.contains(task)) {
-												tileAdd.add(task);
+											if (!pm.tileAdd.contains(task)) {
+												pm.tileAdd.add(task);
 											}
 										}
 										// Notify dependents
@@ -325,8 +329,8 @@ public abstract class ManagedMeshDelegator extends Delegator {
 								} else if (task.getFuture().isDone()) {
 									task.setStage(STAGE.COMPLETE);
 									task.setFuture(null);
-									if (!tileAdd.contains(task)) {
-										tileAdd.add(task);
+									if (!pm.tileAdd.contains(task)) {
+										pm.tileAdd.add(task);
 									}
 								}
 								break;

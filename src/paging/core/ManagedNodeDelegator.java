@@ -28,7 +28,7 @@ public abstract class ManagedNodeDelegator extends Delegator {
 	public void update(float tpf) {
 		// Handle Managed Nodes
 		if (!tiles.isEmpty()) {
-			delegateAddRemove(tpf);
+		//	delegateAddRemove(tpf);
 			
 			// Handle object fading
 			if (manageObjectFading) {
@@ -46,13 +46,13 @@ public abstract class ManagedNodeDelegator extends Delegator {
 								DelegatorTask task = tiles.get(key);
 								float distance = cam.getLocation().distance(task.getNode().getLocalTranslation());
 								if (task.getNode().getParent() == ((Node)spatial)) {
-									if (distance > maxDistance && !tileRemove.contains(task)) {
+									if (distance > maxDistance && !pm.tileRemove.contains(task)) {
 										// Remove node
-										tileRemove.add(task);
+										pm.tileRemove.add(task);
 									}
 								} else {
-									if (distance <= maxDistance && !tileAdd.contains(task)) {
-										tileAdd.add(task);
+									if (distance <= maxDistance && !pm.tileAdd.contains(task)) {
+										pm.tileAdd.add(task);
 									}
 								}
 							}
