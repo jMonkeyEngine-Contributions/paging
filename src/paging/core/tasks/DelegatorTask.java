@@ -53,7 +53,7 @@ public class DelegatorTask {
 		this.position = position;
 		this.detailHigh = detailHigh;
 		this.detailLow = detailLow;
-		this.nextLOD = detailLow;
+		this.nextLOD = detailHigh;
 	}
 	/**
 	 * Returns the  Vector3f poisition the task is registered with
@@ -79,6 +79,7 @@ public class DelegatorTask {
 		geom.setMesh(mesh);
 		node.attachChild(geom);
 		node.setLocalTranslation(position);
+		node.setQueueBucket(delegator.getRenderBucket());
 	}
 	/**
 	 * Returns the ManagedNode created by finalize
