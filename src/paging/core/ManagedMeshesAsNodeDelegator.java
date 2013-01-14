@@ -25,9 +25,9 @@ import paging.core.tasks.DelegatorTask.STAGE;
  *
  * @author t0neg0d
  */
-public abstract class ManagedMeshDelegator extends Delegator {
+public abstract class ManagedMeshesAsNodeDelegator extends Delegator {
 	
-	protected abstract ManagedMesh createMesh(Vector3f position, ManagedNode dependantNode, Object customData);
+	protected abstract ManagedNode createNode(Vector3f position, ManagedNode dependantNode, Object customData);
 	
 	@Override
 	protected void initialize() {
@@ -189,28 +189,28 @@ public abstract class ManagedMeshDelegator extends Delegator {
 								break;
 							case BEGIN:
 								if (task.getFuture() == null) {
+									final Object customData = task.getCustomData();
 									if (this.isDependant) {
 										final ManagedNode node = task.getDependentNode();
-										final Object customData = task.getCustomData();
 										task.setFuture(exec.submit(new Callable() {
 											@Override
-											public ManagedMesh call() throws Exception {
-												return createMesh(key, node, customData);
+											public ManagedNode call() throws Exception {
+												return createNode(key, node, customData);
 											}
 										}));
 									} else {
 										task.setFuture(exec.submit(new Callable() {
 											@Override
-											public ManagedMesh call() throws Exception {
-												return createMesh(key, null, null);
+											public ManagedNode call() throws Exception {
+												return createNode(key, null, customData);
 											}
 										}));
 									}
 								} else if (task.getFuture().isDone()) {
 									try {
-										task.setMesh((ManagedMesh) task.getFuture().get());
-										task.setGeometry(getGeometry());
-										task.finialize();
+										task.setNode((ManagedNode) task.getFuture().get());
+									//	task.setGeometry(getGeometry());
+									//	task.finialize();
 										if (managePhysics) {
 											task.setStage(STAGE.PHYSICS);
 											task.setFuture(null);
@@ -226,9 +226,9 @@ public abstract class ManagedMeshDelegator extends Delegator {
 											d.onParentNotifyCreate(task);
 										}
 									} catch (InterruptedException ex) {
-										Logger.getLogger(ManagedMeshDelegator.class.getName()).log(Level.SEVERE, null, ex);
+										Logger.getLogger(ManagedMeshesAsNodeDelegator.class.getName()).log(Level.SEVERE, null, ex);
 									} catch (ExecutionException ex) {
-										Logger.getLogger(ManagedMeshDelegator.class.getName()).log(Level.SEVERE, null, ex);
+										Logger.getLogger(ManagedMeshesAsNodeDelegator.class.getName()).log(Level.SEVERE, null, ex);
 									}
 								}
 								break;

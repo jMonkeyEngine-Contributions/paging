@@ -4,6 +4,7 @@
  */
 package paging.core;
 
+import com.jme3.bounding.BoundingBox;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
@@ -44,16 +45,16 @@ public abstract class Delegator implements Control {
 	// Tasks & directives
 	protected LRUCache<Vector3f, DelegatorTask> tileCache;
 	protected ConcurrentHashMap<Vector3f, DelegatorTask> tiles = new ConcurrentHashMap();
-	protected ConcurrentLinkedQueue<DelegatorTask> tileAdd = new ConcurrentLinkedQueue();
-	protected ConcurrentLinkedQueue<DelegatorTask> tileRemove = new ConcurrentLinkedQueue();
+//	protected ConcurrentLinkedQueue<DelegatorTask> tileAdd = new ConcurrentLinkedQueue();
+//	protected ConcurrentLinkedQueue<DelegatorTask> tileRemove = new ConcurrentLinkedQueue();
 	protected ConcurrentLinkedQueue<DelegatorTask> LODUpdates = new ConcurrentLinkedQueue();
 	
 	// Tile info
 	protected float tileSize;
 	protected int tilesPerColumn;
 	protected float maxDistance;
-	protected float fadeStartDistance;
-	protected float totalFadeDistance;
+//	protected float fadeStartDistance;
+//	protected float totalFadeDistance;
 	protected boolean disableYAxis = true;
 	protected Bucket bucket = Bucket.Opaque;
 	
@@ -64,9 +65,6 @@ public abstract class Delegator implements Control {
 	
 	// Physics
 	protected boolean managePhysics = false;
-	
-	// Object fading
-	protected boolean manageObjectFading = false;
 	
 	// Futures
 	Future fTaskLOD;
@@ -93,6 +91,11 @@ public abstract class Delegator implements Control {
 	 * @param tpf Standard JME time/ticks per frame
 	 */
 	public abstract void delegatorUpdate(float tpf);
+	/**
+	 * An abstract method provided for initializing delegator materials
+	 * NOTE: All materials must be initialized within this method.
+	 */
+	public abstract void initDelegatorMaterials();
 	/**
 	 * Allows classes extending spatial delegators to apply texturing to
 	 * custom ManagedMesh classes managed by the extended delegator.
@@ -124,6 +127,7 @@ public abstract class Delegator implements Control {
 		this.pm = pm;
 		this.tileCache = new LRUCache(cacheSize);
 		initialize();
+		initDelegatorMaterials();
 	}
 	/**
 	 * 
@@ -135,8 +139,6 @@ public abstract class Delegator implements Control {
 		this.tileSize = tileSize;
 		this.tilesPerColumn = tilesPerColumn;
 		this.maxDistance = tileSize*((float)tilesPerColumn/2f);
-		this.fadeStartDistance = this.maxDistance/2f;
-		this.totalFadeDistance = this.maxDistance-this.fadeStartDistance;
 		this.disableYAxis = disableYAxis;
 	}
 	/**
@@ -202,9 +204,31 @@ public abstract class Delegator implements Control {
 	public Spatial getTileContainingLocation(Vector3f position) {
 		Spatial ret = null;
 		Set<Vector3f> keys = tiles.keySet();
+		BoundingBox bounds = new BoundingBox();
+		bounds.setXExtent(tileSize);
+		bounds.setYExtent(tileSize);
+		bounds.setZExtent(tileSize);
 		for (Vector3f key : keys) {
-			if (tiles.get(key).getNode().getWorldBound().contains(position)) {
+			bounds.setCenter(key.add(tileSize/2f,tileSize/2f,tileSize/2f));
+			if (bounds.contains(position)) {
 				ret = tiles.get(key).getNode();
+				break;
+			}
+		}
+		return ret;
+	}
+	
+	public DelegatorTask getTaskContainingLocation(Vector3f position) {
+		DelegatorTask ret = null;
+		Set<Vector3f> keys = tiles.keySet();
+		BoundingBox bounds = new BoundingBox();
+		bounds.setXExtent(tileSize);
+		bounds.setYExtent(tileSize);
+		bounds.setZExtent(tileSize);
+		for (Vector3f key : keys) {
+			bounds.setCenter(key.add(tileSize/2f,tileSize/2f,tileSize/2f));
+			if (bounds.contains(position)) {
+				ret = tiles.get(key);
 				break;
 			}
 		}
@@ -231,13 +255,6 @@ public abstract class Delegator implements Control {
 	 */
 	public float getMaxDistance() {
 		return this.maxDistance;
-	}
-	/**
-	 * Returns the distance object fading begins
-	 * @return float fadeStartDistance
-	 */
-	public float getFadeStartDistance() {
-		return this.fadeStartDistance;
 	}
 	/**
 	 * Returns if the delegator is handling tiles or sectors
@@ -275,20 +292,6 @@ public abstract class Delegator implements Control {
 	 */
 	public boolean getManageLOD() {
 		return this.manageLOD;
-	}
-	/**
-	 * Sets if the delegator should be handling object fading
-	 * @param manageObjectFading
-	 */
-	public void setManageObjectFading(boolean manageObjectFading) {
-		this.manageObjectFading = manageObjectFading;
-	}
-	/**
-	 * Gets if the delegator is handling object fading
-	 * @return boolean manageObjectFading
-	 */
-	public boolean getManageObjectFading() {
-		return this.manageObjectFading;
 	}
 	/**
 	 * Adds a level of detail and LODLow or LODHigh if applicable

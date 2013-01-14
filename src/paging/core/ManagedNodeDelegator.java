@@ -28,13 +28,6 @@ public abstract class ManagedNodeDelegator extends Delegator {
 	public void update(float tpf) {
 		// Handle Managed Nodes
 		if (!tiles.isEmpty()) {
-		//	delegateAddRemove(tpf);
-			
-			// Handle object fading
-			if (manageObjectFading) {
-				delegateObjectFading(tpf);
-			}
-			
 			if (fTaskCreate == null) {
 				if (!exec.isTerminating() && !exec.isShutdown()) {
 					fTaskCreate = exec.submit(new Callable() {
@@ -64,54 +57,6 @@ public abstract class ManagedNodeDelegator extends Delegator {
 				fTaskCreate = null;
 			}
 		}
-	}
-	
-	private void delegateAddRemove(float tpf) {
-		// Poll managed nodes and remove tile from scene
-		if (!tileRemove.isEmpty()) {
-			DelegatorTask task = tileRemove.poll();
-			
-			if (task.getNode() != null) {
-				task.getNode().removeFromParent();
-				
-				// Physics
-				if (pm.getManagePhysics() && managePhysics) {
-					pm.getPhysicsSpace().remove(task.getPhysicsNode());
-				}
-
-				// Notify dependants
-
-
-				// Notify listeners
-				for (DelegatorListener l : listeners) {
-					l.onRemoveFromScene(task.getNode());
-				}
-			}
-		}
-		// Poll managed nodes and add tile to scene
-		if (!tileAdd.isEmpty()) {
-			DelegatorTask task = tileAdd.poll();
-			
-		//	task.setStage(STAGE.COMPLETE);
-			((Node)spatial).attachChild(task.getNode());
-			
-			// Physics
-			if (pm.getManagePhysics() && managePhysics) {
-				pm.getPhysicsSpace().add(task.getPhysicsNode());
-			}
-			
-			// Notify dependants
-			
-			
-			// Notify listeners
-			for (DelegatorListener l : listeners) {
-				l.onAddToScene(task.getNode());
-			}
-		}
-	}
-	
-	private void delegateObjectFading(float tpf) {
-		
 	}
 	
 	/**
@@ -151,6 +96,6 @@ public abstract class ManagedNodeDelegator extends Delegator {
 	 */
 	@Override
 	protected void onParentNotifyCreate(DelegatorTask task) {
-		tileAdd.add(tiles.get(task.getPosition()));
+		pm.tileAdd.add(tiles.get(task.getPosition()));
 	}
 }

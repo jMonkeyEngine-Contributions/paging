@@ -7,6 +7,8 @@ package paging.core;
 import com.jme3.bullet.PhysicsSpace;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
+import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
@@ -99,7 +101,7 @@ public class PagingManager implements Control {
 	public Delegator getDelegatorByUID(String UID) {
 		return delegators.get(UID);
 	}
-
+	
 	@Override
 	public Control cloneForSpatial(Spatial spatial) {
 		return this;
